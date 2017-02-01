@@ -44,12 +44,10 @@ class HTTPClient(object):
         return urlparse(url).hostname
 
     def get_path(self,url):
-        parsedUrl = urlparse(url)
-        path = urlparse(url).path
-        query = parsedUrl.query
-        if query == '':
-            return path
-        return  path + '?' + query
+        return urlparse(url).path
+
+    def get_query(self,url):
+        return urlparse(url).query
 
     def connect(self, host, port):
         # use sockets!
@@ -88,7 +86,13 @@ class HTTPClient(object):
         host = self.get_host_name(url)
         port = self.get_host_port(url)
         clientSocket = self.connect(host,port)
-        request = "GET " + self.get_path(url) + " HTTP/1.0\r\n\r\n"
+        path = self.get_path(url)
+        query = self.get_query(url)
+        if query != "":
+            pq = path + '?' +query
+        else:
+            pq = path
+        request = "GET " + pq + " HTTP/1.0\r\n\r\n"
         clientSocket.sendall(request)
         data = self.recvall(clientSocket)
         code = self.get_code(data)
