@@ -32,7 +32,7 @@ class HTTPResponse(object):
     def __init__(self, code=200, body=""):
         self.code = code
         self.body = body
-        print code
+        #print code
 
 class HTTPClient(object):
     def get_host_port(self,url):
@@ -84,6 +84,7 @@ class HTTPClient(object):
                 buffer.extend(part)
             else:
                 done = not part
+        print buffer
         return str(buffer)
 
     def GET(self, url, args=None):
