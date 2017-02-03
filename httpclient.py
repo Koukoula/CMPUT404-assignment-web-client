@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 # Furthermore it is derived from the Python documentation examples thus
-# some of the code is Copyright © 2001-2017 Python Software
+# some of the code is Copyright 2001-2017 Python Software
 # Foundation; All Rights Reserved
 #
 # http://docs.python.org/2/library/socket.html
