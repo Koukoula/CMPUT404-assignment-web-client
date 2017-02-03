@@ -1,5 +1,30 @@
 #!/usr/bin/env python
 # coding: utf-8
+#
+# Copyright 2017 Panayioti Koukoulas, Noah Shillington
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Furthermore it is derived from the Python documentation examples thus
+# some of the code is Copyright  2001-2017 Python Software
+# Foundation; All Rights Reserved
+#
+# http://docs.python.org/2/library/socket.html
+# https://docs.python.org/2/library/urlparse.html
+# https://docs.python.org/2/library/re.html
+# https://docs.python.org/2/library/urllib.html
+#
+#
 # Copyright 2016 Abram Hindle, https://github.com/tywtyw2002, and https://github.com/treedust
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
