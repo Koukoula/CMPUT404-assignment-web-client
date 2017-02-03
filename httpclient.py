@@ -84,30 +84,45 @@ class HTTPClient(object):
                 buffer.extend(part)
             else:
                 done = not part
-        print buffer
+
         return str(buffer)
 
     def GET(self, url, args=None):
-        host = self.get_host_name(url)
-        port = self.get_host_port(url)
-        clientSocket = self.connect(host,port)
-        path = self.get_path(url)
-        query = self.get_query(url)
-        if query != "":
-            pq = path + '?' +query
-        else:
-            pq = path
-        request = "GET " + pq + " HTTP/1.0\r\n"
-        request += "Host: " + host + '\r\n'
-        request += "Accept: */*\r\n"
-        request += "\r\n"
-        clientSocket.sendall(request)
-        data = self.recvall(clientSocket)
-        code = self.get_code(data)
-        #header = self.get_headers(data)
-        body = self.get_body(data)
-        return HTTPResponse(code, body)
+        redirectLim = 5
+        while redirectLim > 0:
+            host = self.get_host_name(url)
+            port = self.get_host_port(url)
+            clientSocket = self.connect(host,port)
+            path = self.get_path(url)
+            query = self.get_query(url)
+            if query != "":
+                pq = path + '?' +query
+            else:
+                pq = path
+            request = "GET " + pq + " HTTP/1.0\r\n"
+            request += "Host: " + host + '\r\n'
+            request += "Accept: */*\r\n"
+            request += "\r\n"
+            clientSocket.sendall(request)
+            data = self.recvall(clientSocket)
+            code = self.get_code(data)
+            print code
+            if code >= 300 and code < 400:
+                header = self.get_headers(data)
+                url = self.followRedirect(header)
+                redirectLim -= 1
+            else: 
+                body = self.get_body(data)
+                return HTTPResponse(code, body)
 
+    def followRedirect(self, header):
+        headerURL = header.splitlines() 
+        for line in headerURL:
+            if len(line) != 0:
+                if line.split()[0] == "Location:":
+                    url = line.split()[1]
+                    return url
+                #should probably do error catching.
     def POST(self, url, args=None):
         host = self.get_host_name(url)
         port = self.get_host_port(url)
