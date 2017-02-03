@@ -32,6 +32,7 @@ class HTTPResponse(object):
     def __init__(self, code=200, body=""):
         self.code = code
         self.body = body
+        print code
 
 class HTTPClient(object):
     def get_host_port(self,url):
@@ -56,7 +57,12 @@ class HTTPClient(object):
         return clientSocket
 
     def get_code(self, data):
-        return int(re.findall(r" (\d+) ", data)[0])
+        code = 500
+        codeSplit = re.findall(r" (\d+) ", data)
+        #print data
+        if len(codeSplit) != 0:
+            code = int(codeSplit[0])
+        return code
 
     def get_headers(self,data):
         endString = '\r\n\r\n'
@@ -81,8 +87,6 @@ class HTTPClient(object):
         return str(buffer)
 
     def GET(self, url, args=None):
-        code = 500
-        body = ""
         host = self.get_host_name(url)
         port = self.get_host_port(url)
         clientSocket = self.connect(host,port)
@@ -92,7 +96,10 @@ class HTTPClient(object):
             pq = path + '?' +query
         else:
             pq = path
-        request = "GET " + pq + " HTTP/1.0\r\n\r\n"
+        request = "GET " + pq + " HTTP/1.0\r\n"
+        request += "Host: " + host + '\r\n'
+        request += "Accept: */*\r\n"
+        request += "\r\n"
         clientSocket.sendall(request)
         data = self.recvall(clientSocket)
         code = self.get_code(data)
@@ -101,8 +108,25 @@ class HTTPClient(object):
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        code = 500
-        body = ""
+        host = self.get_host_name(url)
+        port = self.get_host_port(url)
+        clientSocket = self.connect(host,port)
+        path = self.get_path(url)
+        query = self.get_query(url)
+        request = "POST " + path + " HTTP/1.0\r\n"
+        request += "Host: " + host + '\r\n'
+        request += "Accept: */*\r\n"
+        request += "Content-Type: application/x-www-form-urlencoded\r\n"
+        request += "Content-Length: " + str(len(query)) + '\r\n'
+        request += "\r\n"
+        if query != "":
+            request += query
+        request += '\r\n'
+        clientSocket.sendall(request)
+        data = self.recvall(clientSocket)
+        code = self.get_code(data)
+        #header = self.get_headers(data)
+        body = self.get_body(data)
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
