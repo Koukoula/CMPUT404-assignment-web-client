@@ -1,28 +1,4 @@
 #!/usr/bin/env python
-# Copyright 2017 Panayioti Koukoulas, Noah Shillington
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-# Furthermore it is derived from the Python documentation examples thus
-# some of the code is Copyright 2001-2017 Python Software
-# Foundation; All Rights Reserved
-#
-# http://docs.python.org/2/library/socket.html
-# https://docs.python.org/2/library/urlparse.html
-# https://docs.python.org/2/library/re.html
-# https://docs.python.org/2/library/urllib.html
-#
-#
 # coding: utf-8
 # Copyright 2016 Abram Hindle, https://github.com/tywtyw2002, and https://github.com/treedust
 #
@@ -37,11 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+
 # Do not use urllib's HTTP GET and POST mechanisms.
 # Write your own HTTP GET and POST
 # The point is to understand what you have to send and get experience with it
-#
+
 import sys
 import socket
 import re
@@ -56,7 +32,6 @@ class HTTPResponse(object):
     def __init__(self, code=200, body=""):
         self.code = code
         self.body = body
-        print code
 
 class HTTPClient(object):
     def get_host_port(self,url):
@@ -69,7 +44,10 @@ class HTTPClient(object):
         return urlparse(url).hostname
 
     def get_path(self,url):
-        return urlparse(url).path
+        path = urlparse(url).path
+        if path == '':
+            path = '/'
+        return path
 
     def get_query(self,url):
         return urlparse(url).query
@@ -108,6 +86,7 @@ class HTTPClient(object):
                 buffer.extend(part)
             else:
                 done = not part
+        print str(buffer)
         return str(buffer)
 
     def GET(self, url, args=None):
@@ -115,7 +94,10 @@ class HTTPClient(object):
         port = self.get_host_port(url)
         clientSocket = self.connect(host,port)
         path = self.get_path(url)
-        query = self.get_query(url)
+        if args != None:
+            query = urllib.urlencode(args)
+        else:
+            query = self.get_query(url)
         if query != "":
             pq = path + '?' +query
         else:
@@ -136,7 +118,10 @@ class HTTPClient(object):
         port = self.get_host_port(url)
         clientSocket = self.connect(host,port)
         path = self.get_path(url)
-        query = self.get_query(url)
+        if args != None:
+            query = urllib.urlencode(args)
+        else:
+            query = self.get_query(url)
         request = "POST " + path + " HTTP/1.0\r\n"
         request += "Host: " + host + '\r\n'
         request += "Accept: */*\r\n"
