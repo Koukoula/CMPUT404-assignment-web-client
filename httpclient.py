@@ -45,7 +45,10 @@ class HTTPClient(object):
         return urlparse(url).hostname
 
     def get_path(self,url):
-        return urlparse(url).path
+        path = urlparse(url).path
+        if path == '':
+            path = '/'
+        return path
 
     def get_query(self,url):
         return urlparse(url).query
@@ -131,6 +134,9 @@ class HTTPClient(object):
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
+        if not (url.startswith("http://") or url.startswith("https://")):
+            url = "http://" + url
+        print url
         if (command == "POST"):
             return self.POST( url, args )
         else:
