@@ -86,7 +86,6 @@ class HTTPClient(object):
     def get_code(self, data):
         code = 500
         codeSplit = re.findall(r" (\d+) ", data)
-        #print data
         if len(codeSplit) != 0:
             code = int(codeSplit[0])
         return code
@@ -134,7 +133,6 @@ class HTTPClient(object):
         clientSocket.sendall(request)
         data = self.recvall(clientSocket)
         code = self.get_code(data)
-        #header = self.get_headers(data)
         body = self.get_body(data)
         return HTTPResponse(code, body)
 
@@ -159,7 +157,6 @@ class HTTPClient(object):
         clientSocket.sendall(request)
         data = self.recvall(clientSocket)
         code = self.get_code(data)
-        #header = self.get_headers(data)
         body = self.get_body(data)
         return HTTPResponse(code, body)
 
