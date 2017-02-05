@@ -145,7 +145,6 @@ class HTTPClient(object):
                 buffer.extend(part)
             else:
                 done = not part
-        print str(buffer)
         return str(buffer)
 
     def GET(self, url, args=None):
@@ -171,11 +170,11 @@ class HTTPClient(object):
             if 300 <= code and code < 400:
                 header = self.get_headers(data)
                 url = self.followRedirect(header)
-                print url
                 if url.startswith('https'):
                     break
                 continue
             break
+        print data
         return [code,self.get_body(data)]
 
     def followRedirect(self, header):
@@ -189,7 +188,6 @@ class HTTPClient(object):
     def command(self, url, command="GET", args=None):
         if not (url.startswith("http://") or url.startswith("https://")):
             url = "http://" + url
-        print url
         if (command == "POST"):
             return self.POST( url, args )
         else:
