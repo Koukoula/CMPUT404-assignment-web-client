@@ -100,23 +100,8 @@ class HTTPClient(object):
         endOfHeader = data.find(endString)
         return data[endOfHeader+len(endString):]
 
-    # read everything from the socket
-    def recvall(self, sock):
-        buffer = bytearray()
-        done = False
-        while not done:
-            part = sock.recv(1024)
-            if (part):
-                buffer.extend(part)
-            else:
-                done = not part
-        print str(buffer)
-        return str(buffer)
-
-    def GET(self, url, args=None):
+    def createGETRequest(self, url, args):
         host = self.get_host_name(url)
-        port = self.get_host_port(url)
-        clientSocket = self.connect(host,port)
         path = self.get_path(url)
         if args != None:
             query = urllib.urlencode(args)
@@ -130,16 +115,10 @@ class HTTPClient(object):
         request += "Host: " + host + '\r\n'
         request += "Accept: */*\r\n"
         request += "\r\n"
-        clientSocket.sendall(request)
-        data = self.recvall(clientSocket)
-        code = self.get_code(data)
-        body = self.get_body(data)
-        return HTTPResponse(code, body)
+        return request
 
-    def POST(self, url, args=None):
+    def createPOSTRequest(self, url, args):
         host = self.get_host_name(url)
-        port = self.get_host_port(url)
-        clientSocket = self.connect(host,port)
         path = self.get_path(url)
         if args != None:
             query = urllib.urlencode(args)
@@ -154,11 +133,58 @@ class HTTPClient(object):
         if query != "":
             request += query
         request += '\r\n'
-        clientSocket.sendall(request)
-        data = self.recvall(clientSocket)
-        code = self.get_code(data)
-        body = self.get_body(data)
-        return HTTPResponse(code, body)
+        return request
+
+    # read everything from the socket
+    def recvall(self, sock):
+        buffer = bytearray()
+        done = False
+        while not done:
+            part = sock.recv(1024)
+            if (part):
+                buffer.extend(part)
+            else:
+                done = not part
+        print str(buffer)
+        return str(buffer)
+
+    def GET(self, url, args=None):
+        packagedData = self.sendRequest('GET', url, args)
+        return HTTPResponse(packagedData[0], packagedData[1])
+
+    def POST(self, url, args=None):
+        packagedData = self.sendRequest('POST', url, args)
+        return HTTPResponse(packagedData[0], packagedData[1])
+
+    def sendRequest(self, rtype, url, args):
+        for i in range(16):
+            if rtype == 'POST':
+                request = self.createPOSTRequest(url, args)
+            else:
+                request = self.createGETRequest(url, args)
+            host = self.get_host_name(url)
+            port = self.get_host_port(url)
+            clientSocket = self.connect(host,port)
+            clientSocket.sendall(request)
+            data = self.recvall(clientSocket)
+            code = self.get_code(data)
+            if 300 <= code and code < 400:
+                header = self.get_headers(data)
+                url = self.followRedirect(header)
+                print url
+                if url.startswith('https'):
+                    break
+                continue
+            break
+        return [code,self.get_body(data)]
+
+    def followRedirect(self, header):
+         headerURL = header.splitlines()
+         for line in headerURL:
+             if len(line) != 0:
+                 if line.split()[0] == "Location:":
+                     url = line.split()[1]
+                     return url
 
     def command(self, url, command="GET", args=None):
         if not (url.startswith("http://") or url.startswith("https://")):
